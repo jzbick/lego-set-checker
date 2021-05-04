@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import AutoComplete from "primevue/autocomplete";
 
 export default {
   name: "Header",
