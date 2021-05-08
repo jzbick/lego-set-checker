@@ -1,10 +1,13 @@
 import {createApp} from 'vue'
 import App from './App.vue'
-import PrimeVue from 'primevue/config'
-import AutoComplete from "primevue/autocomplete";
-import 'primeflex/primeflex.css'
+import axios from 'axios'
+import VueAxios from 'vue-axios';
+import BalmUI from 'balm-ui'
+import BalmUIPlus from 'balm-ui-plus'
+import 'balm-ui-css'
 
 const app = createApp(App)
-app.use(PrimeVue)
-app.component(AutoComplete.name, AutoComplete)
+app.use(VueAxios, axios)
+app.use(BalmUI)
+app.use(BalmUIPlus)
 app.mount('#app')
