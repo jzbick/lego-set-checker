@@ -25,17 +25,6 @@ import PartCard from "./components/PartCard.vue";
 import {persistSetParts} from "./functions/persistSetParts";
 import {checkCacheForPartInSet, checkCacheForSet} from "./functions/checkCache";
 
-const example = {
-  last_modified_dt: "2021-02-14T20:05:56.824055Z",
-  name: "Backhoe Loader",
-  num_parts: 609,
-  set_img_url: "https://cdn.rebrickable.com/media/sets/8069-1/49749.jpg",
-  set_num: "8069-1",
-  set_url: "https://rebrickable.com/sets/8069-1/backhoe-loader/",
-  theme_id: 7,
-  year: 2011
-}
-
 export default {
   name: 'app',
   components: {
@@ -45,7 +34,7 @@ export default {
   },
   data() {
     return {
-      searchedSet: example as LegoSet,
+      searchedSet: null as LegoSet,
       parts: [] as LegoPart[],
       nextPage: '',
       prevPage: '',
