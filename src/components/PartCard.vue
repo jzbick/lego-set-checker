@@ -30,7 +30,7 @@ import {persistPart} from '../functions/persistPart';
 export default {
   name: "PartCard",
   props: {
-    part: Object as LegoPart
+    part: null as LegoPart
   },
   methods: {
     handlePersistPart() {

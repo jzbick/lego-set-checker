@@ -1,7 +1,6 @@
 <template>
   <ui-top-app-bar
       :content-selector="contentSelector"
-      nav-icon=""
       title="Lego Set Checker"
   >
     <template #toolbar>

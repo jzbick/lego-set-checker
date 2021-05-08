@@ -25,7 +25,7 @@ import {LegoSet} from "../types/rebrickable";
 export default {
   name: "SetCard",
   props: {
-    searchedSet: Object as LegoSet
+    searchedSet: null as LegoSet
   },
   methods: {
     async fetchParts() {
