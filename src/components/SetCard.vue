@@ -1,8 +1,8 @@
 <template>
-  <div v-if="searchedSet" class="set-card__container">
+  <div v-if="set" class="set-card__container">
 
     <div>
-      <img :src="searchedSet.set_img_url" alt="" class="set-card__image" width="200">
+      <img :src="set.set_img_url" alt="" class="set-card__image" width="200">
     </div>
 
     <div class="set-card__info">
@@ -13,9 +13,9 @@
           <div>Parts:</div>
         </div>
         <div class="set-card__info-values">
-          <div>{{ searchedSet.name }}</div>
-          <div>{{ searchedSet.set_num }}</div>
-          <div>{{ searchedSet.num_parts }}</div>
+          <div>{{ set.name }}</div>
+          <div>{{ set.set_num }}</div>
+          <div>{{ set.num_parts }}</div>
         </div>
       </div>
       <ui-button raised v-on:click="fetchParts">Get parts</ui-button>
@@ -29,7 +29,7 @@
           <div>Unique missing:</div>
         </div>
         <div class="set-card__info-values right-align">
-          <div>{{ searchedSet.num_parts }}</div>
+          <div>{{ set.num_parts }}</div>
           <div>{{ getPartsMissing() || 0 }}</div>
           <div>{{ getUniquePartsMissing() || 0 }}</div>
         </div>
@@ -48,18 +48,20 @@ import {getUniquePartsMissing} from "../functions/getUniquePartsMissing";
 
 export default {
   name: "SetCard",
-  props: {
-    searchedSet: null as LegoSet
+  computed: {
+    set() {
+      return this.$store.state.set as LegoSet
+    }
   },
   methods: {
     async fetchParts() {
-      this.$emit('fetchParts', this.searchedSet.set_num)
+      this.$emit('fetchParts', this.set.set_num)
     },
     getPartsMissing(): number {
-      return getPartsMissing(this.searchedSet.set_num)
+      return getPartsMissing(this.set.set_num)
     },
     getUniquePartsMissing(): number {
-      return getUniquePartsMissing(this.searchedSet.set_num)
+      return getUniquePartsMissing(this.set.set_num)
     }
   },
   emits: ['fetchParts']
