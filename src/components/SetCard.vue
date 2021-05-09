@@ -42,6 +42,7 @@ export default {
   margin: .5rem auto;
   display: flex;
   box-sizing: border-box;
+  height: 17.47%;
 }
 
 .set-card__image {
