@@ -101,6 +101,7 @@ export default {
 
       this.$store.dispatch('setNextPage', response.data.next)
       this.$store.dispatch('setPrevPage', response.data.previous)
+      this.$store.dispatch('setMissingParts')
       persistSetParts(this.set.set_num, this.$store.state.parts)
     }
   }
