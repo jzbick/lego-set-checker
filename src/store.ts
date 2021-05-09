@@ -1,30 +1,35 @@
 import {createStore, Store} from "vuex";
 import {LegoPart, LegoSet} from "./types/rebrickable";
 import {InjectionKey} from "vue";
+import {getPartsMissing} from "./functions/getPartsMissing";
+import {getUniquePartsMissing} from "./functions/getUniquePartsMissing";
 
 export interface State {
   set?: LegoSet
   parts?: LegoPart[],
   prevPage: string,
   nextPage: string,
+  missingParts: number,
+  uniqueMissingParts: number
 }
 
 export const key: InjectionKey<Store<State>> = Symbol()
 
 
 export const store = createStore<State>({
-  state: {
-    set: undefined,
-    parts: [],
-    prevPage: '',
-    nextPage: ''
-  } as State,
+  state(): State {
+    return {
+      set: undefined,
+      parts: [],
+      prevPage: '',
+      nextPage: '',
+      missingParts: 0,
+      uniqueMissingParts: 0
+    }
+  },
   mutations: {
     setSet(state, set: LegoSet) {
       state.set = set
-      if (!localStorage.getItem(set.set_num)) {
-        localStorage.setItem(set.set_num, JSON.stringify(set))
-      }
     },
     setParts(state, parts: LegoPart[]) {
       state.parts = parts
@@ -37,6 +42,14 @@ export const store = createStore<State>({
     },
     setNextPage(state, nextPage: string) {
       state.nextPage = nextPage
+    },
+    setMissingParts(state) {
+      if (state.set) {
+        const missingParts = getPartsMissing(state.set.set_num)
+        if (missingParts) state.missingParts = missingParts
+        const uniqueMissingParts = getUniquePartsMissing(state.set.set_num)
+        if (uniqueMissingParts) state.uniqueMissingParts = uniqueMissingParts
+      }
     }
   },
   actions: {
@@ -54,6 +67,9 @@ export const store = createStore<State>({
     },
     setNextPage(context, nextPage: string) {
       context.commit('setNextPage', nextPage)
+    },
+    setMissingParts(context) {
+      context.commit('setMissingParts')
     }
   }
 })

@@ -30,8 +30,8 @@
         </div>
         <div class="set-card__info-values right-align">
           <div>{{ set.num_parts }}</div>
-          <div>{{ getPartsMissing() || 0 }}</div>
-          <div>{{ getUniquePartsMissing() || 0 }}</div>
+          <div>{{ missingParts }}</div>
+          <div>{{ uniqueMissingParts }}</div>
         </div>
       </div>
       <ui-button raised>Export</ui-button>
@@ -42,8 +42,6 @@
 
 <script lang="ts">
 import {LegoSet} from "../types/rebrickable";
-import {getPartsMissing} from "../functions/getPartsMissing";
-import {getUniquePartsMissing} from "../functions/getUniquePartsMissing";
 
 
 export default {
@@ -51,18 +49,18 @@ export default {
   computed: {
     set() {
       return this.$store.state.set as LegoSet
+    },
+    missingParts() {
+      return this.$store.state.missingParts as number
+    },
+    uniqueMissingParts() {
+      return this.$store.state.uniqueMissingParts as number
     }
   },
   methods: {
     async fetchParts() {
       this.$emit('fetchParts', this.set.set_num)
     },
-    getPartsMissing(): number {
-      return getPartsMissing(this.set.set_num)
-    },
-    getUniquePartsMissing(): number {
-      return getUniquePartsMissing(this.set.set_num)
-    }
   },
   emits: ['fetchParts']
 }

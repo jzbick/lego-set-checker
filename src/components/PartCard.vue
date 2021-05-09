@@ -35,6 +35,7 @@ export default {
   methods: {
     handlePersistPart() {
       persistPart(this.part.set_num, this.part)
+      this.$store.dispatch('setMissingParts')
     }
   }
 }
