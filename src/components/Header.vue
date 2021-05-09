@@ -1,5 +1,6 @@
 <template>
   <ui-top-app-bar
+      :nav-icon="false"
       :content-selector="contentSelector"
       title="Lego Set Checker"
   >
