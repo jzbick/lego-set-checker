@@ -48,9 +48,12 @@ export default {
     },
     getTotalPages(): number {
       return Math.ceil(this.partsCount / 5)
+    },
+    updateMissingParts() {
+      this.$emit('updateMissingParts')
     }
   },
-  emits: ["getPartsPage"]
+  emits: ["getPartsPage", 'updateMissingParts']
 }
 </script>
 
