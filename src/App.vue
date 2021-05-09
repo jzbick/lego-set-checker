@@ -1,15 +1,11 @@
 <template>
   <Header content-selector="#root" v-on:setSelected="onSelect"/>
   <div id="root">
-    <SetCard :searched-set="searchedSet" v-on:fetchParts="getParts"></SetCard>
+    <SetCard v-on:fetchParts="getParts"></SetCard>
     <hr style="margin: 0">
     <PartsList
         :loading="loading"
-        :next-page="nextPage"
-        :parts="parts"
         :parts-count="partsCount"
-        :prev-page="prevPage"
-        :searched-set="searchedSet"
         v-on:getPartsPage="getPartsPage"
     ></PartsList>
   </div>
@@ -19,7 +15,7 @@
 
 import Header from "./components/Header.vue";
 import {AxiosResponse} from "axios";
-import {LegoPart, LegoSet, LegoSetPartsResponse} from "./types/rebrickable";
+import {LegoSet, LegoSetPartsResponse} from "./types/rebrickable";
 import SetCard from "./components/SetCard.vue";
 import PartCard from "./components/PartCard.vue";
 import {persistSetParts} from "./functions/persistSetParts";
@@ -36,20 +32,21 @@ export default {
   },
   data() {
     return {
-      searchedSet: null as LegoSet,
-      parts: [] as LegoPart[],
-      nextPage: '',
-      prevPage: '',
       loading: false,
       partsCount: 0,
     }
+  },
+  computed: {
+    set() {
+      return this.$store.state.set as LegoSet
+    },
   },
   methods: {
     async onSelect(searchTerm: string) {
       const cacheSet = checkCacheForSet()
 
       if (cacheSet) {
-        this.searchedSet = cacheSet;
+        await this.$store.dispatch('setSet', cacheSet);
       } else {
 
         const response = await this.$http.get(`${import.meta.env.VITE_API_BASE_URL}/lego/sets/${searchTerm}`, {
@@ -57,17 +54,17 @@ export default {
             'Authorization': `key ${import.meta.env.VITE_API_KEY}`
           }
         }) as AxiosResponse<LegoSet>
-        this.searchedSet = response.data
+        await this.$store.dispatch('setSet', response.data);
 
-        if (!localStorage.getItem(this.searchedSet.set_num)) {
-          localStorage.setItem(this.searchedSet.set_num, JSON.stringify(this.searchedSet))
+        if (!localStorage.getItem(this.set.set_num)) {
+          localStorage.setItem(this.set.set_num, JSON.stringify(this.set))
         }
       }
     },
     async getParts() {
-      this.parts = []
+      await this.$store.dispatch('setParts', [])
       this.loading = true
-      const response = await this.$http.get(`${import.meta.env.VITE_API_BASE_URL}/lego/sets/${this.searchedSet.set_num}/parts`, {
+      const response = await this.$http.get(`${import.meta.env.VITE_API_BASE_URL}/lego/sets/${this.set.set_num}/parts`, {
         headers: {
           'Authorization': `key ${import.meta.env.VITE_API_KEY}`
         },
@@ -76,49 +73,35 @@ export default {
         }
       }) as AxiosResponse<LegoSetPartsResponse>
 
-      const responseParts = response.data.results
-
-      responseParts.forEach(part => {
-        const cachePart = checkCacheForPartInSet(this.searchedSet.set_num, part)
-        if (cachePart) {
-          this.parts.push(cachePart)
-        } else {
-          this.parts.push(part)
-        }
-      })
-      this.loading = false
-      this.partsCount = response.data.count
-      this.nextPage = response.data.next
-      this.prevPage = response.data.previous
-
-      persistSetParts(this.searchedSet.set_num, this.parts)
+      this.handleResponseParts(response)
 
     },
     async getPartsPage(url: string) {
+      await this.$store.dispatch('setParts', [])
       this.loading = true
-      this.parts = []
       const response = await this.$http.get(url, {
         headers: {
           'Authorization': `key ${import.meta.env.VITE_API_KEY}`
         },
       }) as AxiosResponse<LegoSetPartsResponse>
 
-      const responseParts = response.data.results
-
-      responseParts.forEach(part => {
-        const cachePart = checkCacheForPartInSet(this.searchedSet.set_num, part)
+      this.handleResponseParts(response)
+    },
+    handleResponseParts(response: AxiosResponse<LegoSetPartsResponse>) {
+      response.data.results.forEach(part => {
+        const cachePart = checkCacheForPartInSet(this.set.set_num, part)
         if (cachePart) {
-          this.parts.push(cachePart)
+          this.$store.dispatch('pushPart', cachePart)
         } else {
-          this.parts.push(part)
+          this.$store.dispatch('pushPart', part)
         }
       })
       this.loading = false
       this.partsCount = response.data.count
-      this.nextPage = response.data.next
-      this.prevPage = response.data.previous
 
-      persistSetParts(this.searchedSet.set_num, this.parts)
+      this.$store.dispatch('setNextPage', response.data.next)
+      this.$store.dispatch('setPrevPage', response.data.previous)
+      persistSetParts(this.set.set_num, this.$store.state.parts)
     }
   }
 }

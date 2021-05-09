@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parts && searchedSet" class="parts-container">
+  <div v-if="parts && set" class="parts-container">
     <div v-if="loading" class="parts-list">
       <ui-spinner active/>
     </div>
@@ -25,12 +25,22 @@ export default {
     PartCard
   },
   props: {
-    parts: null as LegoPart[],
-    searchedSet: null as LegoSet,
     loading: false as boolean,
-    prevPage: '' as string,
-    nextPage: '' as string,
     partsCount: null as number
+  },
+  computed: {
+    set() {
+      return this.$store.state.set as LegoSet
+    },
+    parts() {
+      return this.$store.state.parts as LegoPart[]
+    },
+    nextPage() {
+      return this.$store.state.nextPage as string
+    },
+    prevPage() {
+      return this.$store.state.prevPage as string
+    }
   },
   methods: {
     handlePrev() {
