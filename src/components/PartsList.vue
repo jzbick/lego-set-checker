@@ -4,7 +4,12 @@
       <ui-spinner active/>
     </div>
     <div v-else class="parts-list">
-      <PartCard v-for="part in parts" :part="part"></PartCard>
+      <PartCard
+          v-for="(part, index) in parts"
+          :ref="`part${index}`"
+          :part="part"
+          v-on:enterPressed="handleNextPart(`part${index+1}`)"
+      ></PartCard>
     </div>
     <div class="page-buttons">
       <ui-button :disabled="!prevPage" raised @click="handlePrev">prev</ui-button>
@@ -61,6 +66,14 @@ export default {
     },
     updateMissingParts() {
       this.$emit('updateMissingParts')
+    },
+    handleNextPart(nextPart: string) {
+      const element = this.$refs[nextPart]
+      if (element) {
+        element.$el.nextSibling.childNodes[2].childNodes[0].childNodes[6].focus()
+      } else {
+        this.handleNext()
+      }
     }
   },
   emits: ["getPartsPage", 'updateMissingParts']

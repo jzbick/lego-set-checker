@@ -17,6 +17,7 @@
           input-type="number"
           placeholder="Quantity owned"
           @change="handlePersistPart"
+          v-on:keypress.enter="handleEnter"
       />
     </div>
   </div>
@@ -36,8 +37,12 @@ export default {
     handlePersistPart() {
       persistPart(this.part.set_num, this.part)
       this.$store.dispatch('setMissingParts')
+    },
+    handleEnter() {
+      this.$emit('enterPressed')
     }
-  }
+  },
+  emits: ['enterPressed']
 }
 </script>
 
