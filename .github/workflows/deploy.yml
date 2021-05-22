@@ -3,12 +3,12 @@ on:
   push:
     branches:
       - main
+env:
+  VITE_API_BASE_URL: ${{secrets.VITE_API_BASE_URL}}
+  VITE_API_KEY: ${{secrets.VITE_API_KEY}}
 
 jobs:
   build-deploy:
-    env:
-      VITE_API_BASE_URL: ${{secret.VITE_API_BASE_URL}}
-      VITE_API_KEY: ${{secret.VITE_API_KEY}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
