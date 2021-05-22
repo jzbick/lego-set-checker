@@ -34,33 +34,71 @@
           <div>{{ uniqueMissingParts }}</div>
         </div>
       </div>
-      <ui-button raised>Export</ui-button>
+      <div class="set-card__checkbox-container">
+        <ui-checkbox v-model="missingOnly" input-id="checkbox"></ui-checkbox>
+        <label for="checkbox">Missing Only</label>
+      </div>
+      <ui-button raised v-on:click="handleExport">Export</ui-button>
     </div>
 
   </div>
 </template>
 
 <script lang="ts">
-import {LegoSet} from "../types/rebrickable";
+import {LegoPart, LegoSet} from "../types/rebrickable";
+import {checkCacheForSet} from "../functions/checkCache";
+import FileSaver from "file-saver";
 
 
 export default {
   name: "SetCard",
   computed: {
-    set() {
+    set(): LegoSet {
       return this.$store.state.set as LegoSet
     },
-    missingParts() {
+    missingParts(): number {
       return this.$store.state.missingParts as number
     },
-    uniqueMissingParts() {
+    uniqueMissingParts(): number {
       return this.$store.state.uniqueMissingParts as number
+    },
+  },
+  data() {
+    return {
+      missingOnly: false
     }
   },
   methods: {
     async fetchParts() {
       this.$emit('fetchParts', this.set.set_num)
     },
+    handleExport() {
+      let set = checkCacheForSet(this.set.set_num)
+
+      if (set?.parts) {
+        let csv = 'sep=,\r\n\n'
+        const keys = ['id', 'name', 'quantity', 'quantity_owned', 'url']
+        keys.forEach(key => csv += `${key},`)
+        csv = `${csv.slice(0, -1)}\r\n`
+        set.parts
+            .map((value: LegoPart) => ({
+              id: value.id,
+              name: value.part.name,
+              quantity: value.quantity,
+              quantity_owned: value.quantity_owned,
+              url: value.part.part_url
+            }))
+            .filter(value => !this.missingOnly ? true : value.quantity > (value.quantity_owned || 0))
+            .forEach(part => {
+              let row = ""
+              Object.values(part)
+                  .forEach(value => row += `"${value ? value : 0}",`)
+
+              csv += `${row}\r\n`
+            })
+        FileSaver.saveAs(new File([csv], `${this.set.set_num} - ${this.set.name}.csv`, {type: 'text/csv'}))
+      }
+    }
   },
   emits: ['fetchParts']
 }
@@ -103,6 +141,12 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+}
+
+.set-card__checkbox-container {
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 
